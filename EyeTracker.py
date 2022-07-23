@@ -3,12 +3,11 @@ import autopy
 from matplotlib import pyplot as plt
 import seaborn as sns
 import asyncio
+import time
 
 ESCAPE_KEY = 27
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
-
-run = 1
 
 
 def transform_video_coordinates_to_screen(eye_x_pos, eye_y_pos):
@@ -35,15 +34,6 @@ def update_mouse_position(hough_circles, eye_x_pos, eye_y_pos, roi_color2):
         print('Exception:', e)
 
 
-async def count(dis):
-    print("STARTED COUNTING")
-    await asyncio.sleep(1)
-    if dis + 10 < distracted:
-        print("YOU ARE DISTRACTED")
-    else:
-        print("GOOD, YOU ARE NOT DISTRACTED")
-
-
 face_cascade = cv2.CascadeClassifier("cascades/frontalface_default.xml")
 eye_cascade = cv2.CascadeClassifier("cascades/righteye_2splits.xml")
 
@@ -57,11 +47,12 @@ if video_capture.isOpened():
 else:
     video_resolution = None
 
-time = 0
 x_max = 200
 x_min = 150
 y_max = 170
 y_min = 125
+
+fps_wait = 0
 
 distracted = 0
 distracted_max = 20
@@ -69,6 +60,7 @@ distracted_total = 0
 attention = 0
 
 while 1:
+    start = time.time()
     try:
         success, image = video_capture.read()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -95,15 +87,12 @@ while 1:
 
         if eye_x_pos < x_min or eye_x_pos > x_max or eye_y_pos < y_min or eye_x_pos > y_max or eye_x_pos is None or eye_y_pos is None:
             distracted = distracted + 1
-            distracted_total = distracted_total + 1
-            print("DISTRACTED: ", distracted)
-            if distracted > distracted_max:
-                print("YOU ARE DISTRACTED")
-                distracted = 0
 
-        else:
-            attention = attention + 1
-            print("ATTENTION: ", attention)
+        end = time.time()
+        total_time = end - start
+        fps = 1 / total_time # 1 second
+        fps_wait = fps
+        print("FPS: ", fps)
 
         key_pressed = cv2.waitKey(30) & 0xff
         if key_pressed == ESCAPE_KEY:
