@@ -87,10 +87,19 @@ while 1:
 
         if eye_x_pos < x_min or eye_x_pos > x_max or eye_y_pos < y_min or eye_x_pos > y_max or eye_x_pos is None or eye_y_pos is None:
             distracted = distracted + 1
+            if distracted > fps_wait:
+                text = "DISTRACTED"
+        else:
+            distracted = 0
+            text = "ATTENTION"
+
+        print("DISTRACTED: ", distracted)
+
+        cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
 
         end = time.time()
         total_time = end - start
-        fps = 1 / total_time # 1 second
+        fps = 1 / total_time  # 1 second
         fps_wait = fps
         print("FPS: ", fps)
 
