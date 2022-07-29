@@ -68,25 +68,25 @@ while cap.isOpened():
             y = angles[1] * 360
             z = angles[2] * 360
 
-            #if y < -10:
-            #    text = "Looking Left"
-            #elif y > 10:
-            #    text = "Looking Right"
-            #elif x < -10:
-            #    text = "Looking Down"
-            #else:
-            #    text = "Forward"
+            if y < -10:
+                text = "Looking Left"
+            elif y > 10:
+                text = "Looking Right"
+            elif x < -10:
+                text = "Looking Down"
+            else:
+                text = "Forward"
 
-            #if y < -10 or y > 10 or x < -10 or x > 10:
-            #    distracted = distracted + 1
-            #    if distracted > 20:
-            #        text = "DISTRACTED"
-            #    else:
-            #        distracted = 0
-            #        text = "ATTENTION"
-            #else:
-            #    distracted = 0
-            #    text = "ATTENTION"
+            if y < -10 or y > 10 or x < -10 or x > 10:
+                distracted = distracted + 1
+                if distracted > 20:
+                    text = "DISTRACTED"
+                else:
+                    distracted = 0
+                    text = "ATTENTION"
+            else:
+                distracted = 0
+                text = "ATTENTION"
             if y < -10 or y > 10 or x < -10 or x > 10:
                 distracted = distracted + 1
                 if distracted > fps_wait:
@@ -112,11 +112,11 @@ while cap.isOpened():
         #HERE
 
 
-        #print("FPS: ", fps)
-        #print(text)
-        #print("x: " + str(np.round(x, 2)))
-        #print("y: " + str(np.round(y, 2)))
-        #print("z: " + str(np.round(z, 2)))
+        print("FPS: ", fps)
+        print(text)
+        print("x: " + str(np.round(x, 2)))
+        print("y: " + str(np.round(y, 2)))
+        print("z: " + str(np.round(z, 2)))
 
         mp_drawing.draw_landmarks(
                     image = image,
