@@ -2,46 +2,11 @@ import cv2
 import autopy
 from matplotlib import pyplot as plt
 import seaborn as sns
-import asyncio
+import time
 
 ESCAPE_KEY = 27
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
-
-run = 1
-
-
-def transform_video_coordinates_to_screen(eye_x_pos, eye_y_pos):
-    if not video_resolution:
-        return eye_x_pos, eye_y_pos
-
-    return eye_x_pos / video_resolution[0] * screen_resolution[0], eye_y_pos / video_resolution[1] * screen_resolution[1],
-
-
-def update_mouse_position(hough_circles, eye_x_pos, eye_y_pos, roi_color2):
-    try:
-        for circle in hough_circles[int(0), :]:
-
-            circle_center = (circle[int(0)], circle[int(1)])
-
-            cv2.circle(img = roi_color2, center = circle_center, radius = circle[int(2)], color = WHITE, thickness = 2)
-            cv2.circle(img = roi_color2, center = circle_center, radius = 2, color = WHITE, thickness = 3)
-
-            x_pos = int(eye_x_pos)
-            y_pos = int(eye_y_pos)
-            (x_pos, y_pos) = transform_video_coordinates_to_screen(eye_x_pos, eye_y_pos)
-            autopy.mouse.move(x_pos, y_pos)
-    except Exception as e:
-        print('Exception:', e)
-
-
-async def count(dis):
-    print("STARTED COUNTING")
-    await asyncio.sleep(1)
-    if dis + 10 < distracted:
-        print("YOU ARE DISTRACTED")
-    else:
-        print("GOOD, YOU ARE NOT DISTRACTED")
 
 
 face_cascade = cv2.CascadeClassifier("cascades/frontalface_default.xml")
@@ -57,7 +22,6 @@ if video_capture.isOpened():
 else:
     video_resolution = None
 
-time = 0
 x_max = 200
 x_min = 150
 y_max = 170
@@ -69,6 +33,7 @@ distracted_total = 0
 attention = 0
 
 while 1:
+    start = time.time()
     try:
         success, image = video_capture.read()
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -89,21 +54,19 @@ while 1:
             eye_x_positions.append(eye_x_pos)
             eye_y_positions.append(eye_y_pos)
 
-            update_mouse_position(hough_circles, eye_x_pos, eye_y_pos, roi_color2)
-
         cv2.imshow('img', image)
 
         if eye_x_pos < x_min or eye_x_pos > x_max or eye_y_pos < y_min or eye_x_pos > y_max or eye_x_pos is None or eye_y_pos is None:
             distracted = distracted + 1
-            distracted_total = distracted_total + 1
-            print("DISTRACTED: ", distracted)
-            if distracted > distracted_max:
+            if distracted > fps_wait:
                 print("YOU ARE DISTRACTED")
-                distracted = 0
-
         else:
-            attention = attention + 1
-            print("ATTENTION: ", attention)
+            distracted = 0
+
+        end = time.time()
+        total_time = end - start
+        fps = 1 / total_time
+        fps_wait = fps # 1 second
 
         key_pressed = cv2.waitKey(30) & 0xff
         if key_pressed == ESCAPE_KEY:

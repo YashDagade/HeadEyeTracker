@@ -3,7 +3,6 @@ from matplotlib.pyplot import text
 import mediapipe as mp
 import numpy as np
 import time
-import asyncio
 
 
 mp_face_mesh = mp.solutions.face_mesh
